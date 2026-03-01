@@ -1,0 +1,93 @@
+<!-- 
+旋转相册-水平，思路：
+1. 3D效果的核心：html + perspective: 1000px + body/#scene/img 均transform-style: preserve-3d
+2. 静态：相框relative + 图片absolute，给每张图片分配rotateY + translateZ(指定半径)
+3. 无干预动态旋转：旋转图片的容器而非图片，改变容器的旋转rotateY
+4. 有干预旋转：监听鼠标的拖动，根据clientX的偏移计算delta值乘以系数作为图片容器的旋转角度
+
+ -->
+<html>
+    <head>
+        <style>
+            html {
+                margin: 0;
+                padding: 0;
+                width: 100vw;
+                height: 100vh;
+                perspective: 1000px;
+                overflow: hidden;
+            }
+            body {
+                width: 100%;
+                height: 100%;
+                transform-style: preserve-3d;
+                display: flex;
+                justify-content: center;
+                align-items: center;
+            }
+            #scene {
+                position: relative;
+                transform-style: preserve-3d;
+                width: 100;
+                height: 150;
+            }
+            img {
+                position: absolute;
+                left: 0;
+                top: 0;
+                transform-style: preserve-3d;
+                -webkit-box-reflect: below 10px linear-gradient(transparent, transparent, #0005);
+            }
+        </style>
+    </head>
+    <body>
+        <div id="scene">
+            <img src="https://picsum.photos/id/1011/100/150">
+            <img src="https://picsum.photos/id/1015/100/150">
+            <img src="https://picsum.photos/id/1025/100/150">
+            <img src="https://picsum.photos/id/1035/100/150">
+            <img src="https://picsum.photos/id/1041/100/150">
+        </div>
+        <script>
+            const scene = document.getElementById('scene');
+            const images = Array.from(scene.getElementsByTagName('img'));
+            const count = images.length;
+
+            const radius = 300;
+            let rotYOfScene = 0;
+            let lastX = 0;
+            let isDragging = false;
+
+            for(let i=0; i<count; i++) {
+                const rotY = i / count * 360;
+                images[i].style.transform = `rotateY(${rotY}deg) translateZ(${radius}px)`;
+            }
+
+            // 纯静态，无手动干预的情况
+            function animate() {
+                rotYOfScene += 0.3;
+                scene.style.transform = `rotateY(${rotYOfScene}deg)`;
+
+                requestAnimationFrame(animate);
+            }
+            animate()
+
+            // 动态：手动干预的情况
+            document.addEventListener('mousedown', (e) => {
+                isDragging = true;
+                lastX = e.clientX;
+            }, false);
+            document.addEventListener('mousemove', (e) => {
+                if(!isDragging) return;
+
+                const delta = e.clientX - lastX;
+                rotYOfScene += delta * 0.3;
+
+                lastX = e.clientX;
+            }, false);
+            document.addEventListener('mouseup', (e) => {
+                isDragging = false;
+            }, false);
+        </script>
+    </body>
+</html>

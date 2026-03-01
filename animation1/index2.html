@@ -1,0 +1,81 @@
+<!-- index.html 的简化版 -->
+<!DOCTYPE html>
+<html>
+<head>
+<style>
+body {
+  margin: 0;
+  background: #111;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 100vh;
+  perspective: 1000px;
+}
+
+#scene {
+  position: relative;
+  width: 200px;
+  height: 150px;
+  transform-style: preserve-3d;
+}
+
+img {
+  position: absolute;
+  width: 120px;
+  height: 160px;
+  left: 0;
+  top: 0;
+  transform-style: preserve-3d;
+}
+</style>
+</head>
+
+<body>
+<div id="scene">
+  <img src="https://picsum.photos/id/1011/200/300">
+  <img src="https://picsum.photos/id/1015/200/300">
+  <img src="https://picsum.photos/id/1025/200/300">
+  <img src="https://picsum.photos/id/1035/200/300">
+  <img src="https://picsum.photos/id/1041/200/300">
+</div>
+
+<script>
+const imgs = document.querySelectorAll("img")
+const radius = 300
+const count = imgs.length
+
+let rotY = 0
+let dragging = false
+let lastX = 0
+
+// 1. 排成圆环
+imgs.forEach((img, i) => {
+  const angle = i * 360 / count
+  img.style.transform = `rotateY(${angle}deg) translateZ(${radius}px)`
+})
+
+// 2. 拖拽控制
+document.onmousedown = e => {
+  dragging = true
+  lastX = e.clientX
+}
+document.onmouseup = () => dragging = false
+
+document.onmousemove = e => {
+  if (!dragging) return
+  const dx = e.clientX - lastX
+  rotY += dx * 0.3
+  lastX = e.clientX
+}
+
+// 3. 动画循环
+function animate() {
+  rotY += 0.2 // 自动旋转
+  scene.style.transform = `rotateY(${rotY}deg)`
+  requestAnimationFrame(animate)
+}
+animate()
+</script>
+</body>
+</html>
